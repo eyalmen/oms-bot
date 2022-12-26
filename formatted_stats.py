@@ -1,5 +1,6 @@
 import json
 
+
 def get_stats(path):
     with open(path) as f:
         stats = json.load(f)
