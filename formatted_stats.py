@@ -12,7 +12,7 @@ def get_all_stats(path, pokemon):
     
     wanted_stats = {
         "used": stats[pokemon]["usage"]["real"],
-        "win": stats[pokemon]["win"]["real"],
+        "winrate": stats[pokemon]["win"]["real"],
         "lead": stats[pokemon]["lead"]["real"],
         "abilities": stats[pokemon]["abilities"],
         "partners": stats[pokemon]["teammates"],
@@ -25,9 +25,10 @@ def get_all_stats(path, pokemon):
 
 def get_formatted_stats(path, pokemon, cutoff = -1):
     stats = get_all_stats(path, pokemon)
+    
     formatted_stats = {
         "used": f"{round(stats['used']*100, 3)}%",
-        "win": f"{round(stats['win']*100, 3)}%",
+        "winrate": f"{round(stats['winrate']*100, 3)}%",
         "lead": f"{round(stats['lead']*100, 3)}%",
         # "abilities": f"**Abilities:** {'\n'.join([f'''{ability}: {stats['abilities'][ability]}''' for ability in stats['abilities']])}",
         # "partners": f"**Partners:** {'\n'.join([f'''{partner}: {stats['partners'][partner]}''' for partner in stats['partners']])}",
