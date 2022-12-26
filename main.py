@@ -1,7 +1,8 @@
+import random
+
 import nextcord
 from nextcord import Button, ButtonStyle, Embed, Interaction, SlashOption
 from nextcord.ext import commands
-import random
 
 import formatted_stats
 import utils
@@ -58,6 +59,43 @@ async def get_stat(interaction: Interaction,
         embed.add_field(name=utils.format(stat), value=stat_value, inline=False)
     except KeyError:
         embed.add_field(name="Error", value=f"Invalid pokemon for this format: {pokemon}", inline=False)
+    await interaction.response.send_message(embed=embed)
+
+@client.slash_command(guild_ids=guild_ids, description="Get the stats of an item")
+async def get_item(interaction: Interaction,
+    item: str,
+    format: str = SlashOption(description="The format to get stats from", choices=list(formats.keys())),
+    cutoff: int = SlashOption(description="The amount of entries in each stat to show (defaults to all)", default=-1)):
+
+    embed = Embed(title=f"{item}", description=f"Stats for {item} in {format}")
+
+    try:
+        stats = formatted_stats.get_formatted_item_stats(formats[format], item, cutoff)
+        for stat in stats:
+            embed.add_field(name=utils.format(stat), value=stats[stat], inline=False)
+    except KeyError:
+        embed.add_field(name="Error", value=f"Invalid item for this format: {item}", inline=False)
+
+    await interaction.response.send_message(embed=embed)
+
+@client.slash_command(guild_ids=guild_ids, description="Get the item leaderboard")
+async def get_item_leaderboard(interaction: Interaction,
+    format: str = SlashOption(description="The format to get stats from", choices=list(formats.keys())),
+    cutoff: int = SlashOption(description="The amount of entries in each stat to show (defaults to all)", default=-1)):
+
+    embed = Embed(title=f"Item Leaderboard", description=f"Item leaderboard for {format}")
+
+    stats = formatted_stats.get_item_leaderboard(formats[format])
+    leaderboard = ""
+    for item in stats:
+        leaderboard += f"{item.capitalize()}: {stats[item]}\n"
+    
+    if cutoff != -1:
+        leaderboard = leaderboard.split("\n")[:cutoff]
+        leaderboard = "\n".join(leaderboard)
+
+    embed.add_field(name="Leaderboard", value=leaderboard, inline=False)
+
     await interaction.response.send_message(embed=embed)
 
 @client.slash_command(guild_ids=guild_ids, description="Focus blast")

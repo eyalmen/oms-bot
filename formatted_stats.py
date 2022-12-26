@@ -6,6 +6,10 @@ def get_stats(path):
         stats = json.load(f)
     return stats
 
+def get_battles(path):
+    stats = get_stats(path)
+    return stats["battles"]
+
 def get_all_stats(path, pokemon):
     stats = get_stats(path)
     stats = stats["pokemon"]
@@ -43,9 +47,62 @@ def get_formatted_stats(path, pokemon, cutoff = -1):
     formatted_stats["items"] = '\n'.join([f'''{item}: {round(stats['items'][item] * 100, 3)}%''' for item in stats['items']])
 
     if cutoff > 0:
-        formatted_stats["abilities"] = '\n'.join(formatted_stats["abilities"].split('\n')[:cutoff])
-        formatted_stats["partners"] = '\n'.join(formatted_stats["partners"].split('\n')[:cutoff])
-        formatted_stats["moves"] = '\n'.join(formatted_stats["moves"].split('\n')[:cutoff])
-        formatted_stats["items"] = '\n'.join(formatted_stats["items"].split('\n')[:cutoff])
+        formatted_stats["abilities"] = formatted_stats["abilities"][:cutoff]
+        formatted_stats["partners"] = formatted_stats["partners"][:cutoff]
+        formatted_stats["moves"] = formatted_stats["moves"][:cutoff]
+        formatted_stats["items"] = formatted_stats["items"][:cutoff]
         
     return formatted_stats
+
+def get_all_items(path):
+    stats = get_stats(path)
+    stats = stats["items"]
+    return stats
+
+def get_item_stats(path, item):
+    stats = get_all_items(path)
+    item = stats[item]
+
+    item["usage"] = round(item["count"] / get_battles(path) * 100, 3)
+    item["winrate"] = round(item["win"] / item["count"] * 100, 3)
+
+    # for every pokemon in item["pokemon"] replace their value with it / item["count"] * 100 rounded to 3 decimal places
+    for pokemon in item["pokemon"]:
+        item["pokemon"][pokemon] = round(item["pokemon"][pokemon] / item["count"] * 100, 3)
+
+    # sort the pokemon dict by value
+    item["pokemon"] = dict(sorted(item["pokemon"].items(), key=lambda x: x[1], reverse=True))
+
+    del item["count"]
+    del item["win"]
+
+    return item
+
+def get_formatted_item_stats(path, item, cutoff = -1):
+    stats = get_item_stats(path, item)
+
+    formatted_stats = {
+        "usage": f"{stats['usage']}%",
+        "winrate": f"{stats['winrate']}%",
+        "pokemon": '\n'.join([f'''{pokemon}: {stats['pokemon'][pokemon]}%''' for pokemon in stats['pokemon']])
+    }
+
+    if cutoff > 0:
+        pkmn = formatted_stats["pokemon"].split('\n')
+        formatted_stats["pokemon"] = '\n'.join(pkmn[:cutoff])
+    
+    return formatted_stats
+
+def get_item_leaderboard(path):
+    stats = get_all_items(path)
+
+    leaderboard = {}
+    for item in stats:
+        leaderboard[item] = str(stats[item]["count"]) + f" ({round(stats[item]['count'] / get_battles(path) * 100, 2)}%)"
+
+    leaderboard = sorted(leaderboard.items(), key=lambda x: x[1], reverse=True)
+
+    # create a dict from the list of tuples
+    leaderboard = dict(leaderboard)
+
+    return leaderboard
