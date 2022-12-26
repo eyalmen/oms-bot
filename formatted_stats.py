@@ -47,10 +47,15 @@ def get_formatted_stats(path, pokemon, cutoff = -1):
     formatted_stats["items"] = '\n'.join([f'''{item}: {round(stats['items'][item] * 100, 3)}%''' for item in stats['items']])
 
     if cutoff > 0:
-        formatted_stats["abilities"] = formatted_stats["abilities"][:cutoff]
-        formatted_stats["partners"] = formatted_stats["partners"][:cutoff]
-        formatted_stats["moves"] = formatted_stats["moves"][:cutoff]
-        formatted_stats["items"] = formatted_stats["items"][:cutoff]
+        abilities = formatted_stats["abilities"].split('\n')
+        partners = formatted_stats["partners"].split('\n')
+        moves = formatted_stats["moves"].split('\n')
+        items = formatted_stats["items"].split('\n')
+
+        formatted_stats["abilities"] = '\n'.join(abilities[:cutoff])
+        formatted_stats["partners"] = '\n'.join(partners[:cutoff])
+        formatted_stats["moves"] = '\n'.join(moves[:cutoff])
+        formatted_stats["items"] = '\n'.join(items[:cutoff])
         
     return formatted_stats
 
@@ -100,7 +105,24 @@ def get_item_leaderboard(path):
     for item in stats:
         leaderboard[item] = str(stats[item]["count"]) + f" ({round(stats[item]['count'] / get_battles(path) * 100, 2)}%)"
 
-    leaderboard = sorted(leaderboard.items(), key=lambda x: x[1], reverse=True)
+    # sort by the number before the %)
+    leaderboard = sorted(leaderboard.items(), key=lambda x: float(x[1][x[1].index('(')+1:x[1].index('%')]), reverse=True)
+
+    # create a dict from the list of tuples
+    leaderboard = dict(leaderboard)
+
+    return leaderboard
+
+def get_pokemon_leaderboard(path):
+    stats = get_stats(path)
+    stats = stats["pokemon"]
+
+    leaderboard = {}
+    for pokemon in stats:
+        leaderboard[pokemon] = f"{round(stats[pokemon]['usage']['real'] * 100, 2)}%"
+
+    # sort the dict by the number before the %
+    leaderboard = sorted(leaderboard.items(), key=lambda x: float(x[1][:-1]), reverse=True)
 
     # create a dict from the list of tuples
     leaderboard = dict(leaderboard)

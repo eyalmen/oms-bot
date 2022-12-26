@@ -8,7 +8,7 @@ import formatted_stats
 import utils
 
 TOKEN = "MTA1NjYwNzA3ODgyOTAxOTE1Ng.GbR4Qj.UyR2DBWS3RKJRssD6bNHgsxloe96QLhudLsHdU"
-guild_ids = [977351156202356757, 1009941602317385781, 849345805604618270, 1056611873455341739, 1026725257505161236, 734897964400771193]
+guild_ids = [977351156202356757, 1009941602317385781, 849345805604618270, 1056611873455341739, 1026725257505161236, 734897964400771193, 1009941602317385781]
 
 intents = nextcord.Intents.all()
 intents.members = True
@@ -105,5 +105,25 @@ async def focus_blast(interaction: Interaction):
         await interaction.response.send_message("Focus miss")
     else:
         await interaction.response.send_message("Focus blast")
+
+@client.slash_command(guild_ids=guild_ids, description="Get the pokemon leaderboard")
+async def get_pokemon_leaderboard(interaction: Interaction,
+    format: str = SlashOption(description="The format to get stats from", choices=list(formats.keys())),
+    cutoff: int = SlashOption(description="The amount of entries in each stat to show (defaults to all)", default=-1)):
+
+    embed = Embed(title=f"Pokemon Leaderboard", description=f"Pokemon usage leaderboard for {format}")
+
+    stats = formatted_stats.get_pokemon_leaderboard(formats[format])
+    leaderboard = ""
+    for pokemon in stats:
+        leaderboard += f"{pokemon.capitalize()}: {stats[pokemon]}\n"
+    
+    if cutoff != -1:
+        leaderboard = leaderboard.split("\n")[:cutoff]
+        leaderboard = "\n".join(leaderboard)
+
+    embed.add_field(name="Leaderboard", value=leaderboard, inline=False)
+
+    await interaction.response.send_message(embed=embed)
 
 client.run(TOKEN)
