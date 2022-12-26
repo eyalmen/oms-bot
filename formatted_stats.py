@@ -23,20 +23,28 @@ def get_all_stats(path, pokemon):
 
     return wanted_stats
 
-def get_formatted_stats(path, pokemon):
+def get_formatted_stats(path, pokemon, cutoff = -1):
     stats = get_all_stats(path, pokemon)
     formatted_stats = {
-        "used": f"**Used:** {stats['used']}%",
-        "win": f"**Win:** {stats['win']}%",
-        "lead": f"**Lead:** {stats['lead']}%",  
+        "used": f"{round(stats['used']*100, 3)}%",
+        "win": f"{round(stats['win']*100, 3)}%",
+        "lead": f"{round(stats['lead']*100, 3)}%",
         # "abilities": f"**Abilities:** {'\n'.join([f'''{ability}: {stats['abilities'][ability]}''' for ability in stats['abilities']])}",
         # "partners": f"**Partners:** {'\n'.join([f'''{partner}: {stats['partners'][partner]}''' for partner in stats['partners']])}",
         # "moves": f"**Moves:** {'\n'.join([f'''{move}: {stats['moves'][move]}''' for move in stats['moves']])}",
         # "items": f"**Items:** {'\n'.join([f'''{item}: {stats['items'][item]}''' for item in stats['items']])}",
     }
     # you can't have backsplashes in f-strings
-    formatted_stats["abilities"] = "**Abilities:**" + '\n'.join([f'''{ability}: {stats['abilities'][ability]}''' for ability in stats['abilities']])
-    formatted_stats["partners"] = "**Partners:**" + '\n'.join([f'''{partner}: {stats['partners'][partner]}''' for partner in stats['partners']])
-    formatted_stats["moves"] = "**Moves:**" + '\n'.join([f'''{move}: {stats['moves'][move]}''' for move in stats['moves']])
-    formatted_stats["items"] = "**Items:**" + '\n'.join([f'''{item}: {stats['items'][item]}''' for item in stats['items']])
+    # include cutoff
+    formatted_stats["abilities"] = '\n'.join([f'''{ability}: {round(stats['abilities'][ability] * 100, 3)}%''' for ability in stats['abilities']])
+    formatted_stats["partners"] = '\n'.join([f'''{partner}: {round(stats['partners'][partner] * 100, 3)}%''' for partner in stats['partners']])
+    formatted_stats["moves"] = '\n'.join([f'''{move}: {round(stats['moves'][move] * 100, 3)}%''' for move in stats['moves']])
+    formatted_stats["items"] = '\n'.join([f'''{item}: {round(stats['items'][item] * 100, 3)}%''' for item in stats['items']])
+
+    if cutoff > 0:
+        formatted_stats["abilities"] = '\n'.join(formatted_stats["abilities"].split('\n')[:cutoff])
+        formatted_stats["partners"] = '\n'.join(formatted_stats["partners"].split('\n')[:cutoff])
+        formatted_stats["moves"] = '\n'.join(formatted_stats["moves"].split('\n')[:cutoff])
+        formatted_stats["items"] = '\n'.join(formatted_stats["items"].split('\n')[:cutoff])
+        
     return formatted_stats

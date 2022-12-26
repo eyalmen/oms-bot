@@ -19,3 +19,6 @@ def return_chunks(text, max_characters, delimiter):
                 chunks[-1] += text[i] + delimiter
         
     return chunks
+
+def format(text):
+    return f"**{text.capitalize()}:**"
