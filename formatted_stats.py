@@ -22,7 +22,9 @@ def get_all_stats(path, pokemon):
         "partners": stats[pokemon]["teammates"],
         "moves": stats[pokemon]["moves"],
         "items": stats[pokemon]["items"],
-        # TODO: nm and spread
+        "users": stats[pokemon]["users"],
+        # TODO: nm
+        "spreads": stats[pokemon]["stats"],
     }
 
     return wanted_stats
@@ -45,17 +47,27 @@ def get_formatted_stats(path, pokemon, cutoff = -1):
     formatted_stats["partners"] = '\n'.join([f'''{partner}: {round(stats['partners'][partner] * 100, 3)}%''' for partner in stats['partners']])
     formatted_stats["moves"] = '\n'.join([f'''{move}: {round(stats['moves'][move] * 100, 3)}%''' for move in stats['moves']])
     formatted_stats["items"] = '\n'.join([f'''{item}: {round(stats['items'][item] * 100, 3)}%''' for item in stats['items']])
+    formatted_stats["users"] = '\n'.join([f'''{user}: {round(stats['users'][user] * 100, 3)}%''' for user in stats['users']])
+    formatted_stats["spreads"] = '\n'.join([f'''{spread}: {round(stats['spreads'][spread] * 100, 3)}%''' for spread in stats['spreads']])
+
 
     if cutoff > 0:
         abilities = formatted_stats["abilities"].split('\n')
         partners = formatted_stats["partners"].split('\n')
         moves = formatted_stats["moves"].split('\n')
         items = formatted_stats["items"].split('\n')
+        users = formatted_stats["users"].split('\n')
+        spreads = formatted_stats["spreads"].split('\n')
+
+        users = sorted(users, key=lambda x: float(x.split(':')[1].split('%')[0]), reverse=True)
+        spreads = sorted(spreads, key=lambda x: float(x.split(':')[1].split('%')[0]), reverse=True)
 
         formatted_stats["abilities"] = '\n'.join(abilities[:cutoff])
         formatted_stats["partners"] = '\n'.join(partners[:cutoff])
         formatted_stats["moves"] = '\n'.join(moves[:cutoff])
         formatted_stats["items"] = '\n'.join(items[:cutoff])
+        formatted_stats["users"] = '\n'.join(users[:cutoff])
+        formatted_stats["spreads"] = '\n'.join(spreads[:cutoff])
         
     return formatted_stats
 

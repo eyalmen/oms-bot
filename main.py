@@ -1,5 +1,5 @@
-import random
 import json
+import random
 
 import nextcord
 from nextcord import Button, ButtonStyle, Embed, Interaction, SlashOption
@@ -8,7 +8,6 @@ from nextcord.ext import commands
 import formatted_stats
 import utils
 
-TOKEN = ""
 with open("token.json") as f:
     TOKEN = json.load(f)
 TOKEN = TOKEN["token"]
@@ -50,7 +49,7 @@ async def get_stats(interaction: Interaction,
 @client.slash_command(guild_ids=guild_ids, description="Get one of a pokemon's usage stats")
 async def get_stat(interaction: Interaction,
     pokemon: str,
-    stat: str = SlashOption(description="The stat to get", choices=["used", "winrate", "lead", "abilities", "items", "moves", "partners"]),
+    stat: str = SlashOption(description="The stat to get", choices=["used", "winrate", "lead", "abilities", "items", "moves", "partners", "users", "spreads"]),
     format: str = SlashOption(description="The format to get stats from", choices=list(formats.keys())),
     cutoff: int = SlashOption(description="The amount of entries in each stat to show (defaults to all)", default=-1)):
     
@@ -99,6 +98,24 @@ async def get_item_leaderboard(interaction: Interaction,
         leaderboard = "\n".join(leaderboard)
 
     embed.add_field(name="Leaderboard", value=leaderboard, inline=False)
+
+    await interaction.response.send_message(embed=embed)
+
+@client.slash_command(guild_ids=guild_ids, description="See who used a pokemon")
+async def whoused(interaction: Interaction,
+    pokemon: str,
+    format: str = SlashOption(description="The format to get stats from", choices=list(formats.keys())),
+    cutoff: int = SlashOption(description="The amount of entries in each stat to show (defaults to all)", default=-1)):
+
+    embed = Embed(title=f"{pokemon}", description=f"Users who used {pokemon} in {format}")
+
+    try:
+        stats = formatted_stats.get_formatted_stats(formats[format], pokemon, cutoff)
+        users = stats["users"]
+
+        embed.add_field(name="Users", value=users, inline=False)
+    except KeyError:
+        embed.add_field(name="Error", value=f"Invalid pokemon for this format: {pokemon}", inline=False)
 
     await interaction.response.send_message(embed=embed)
 
