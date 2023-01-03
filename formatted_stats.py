@@ -24,7 +24,7 @@ def get_all_stats(path, pokemon):
         "items": stats[pokemon]["items"],
         "users": stats[pokemon]["users"],
         # TODO: nm
-        "spreads": stats[pokemon]["stats"],
+        "spreads": stats[pokemon]["spreads"],
     }
 
     return wanted_stats
@@ -48,8 +48,11 @@ def get_formatted_stats(path, pokemon, cutoff = -1):
     formatted_stats["moves"] = '\n'.join([f'''{move}: {round(stats['moves'][move] * 100, 3)}%''' for move in stats['moves']])
     formatted_stats["items"] = '\n'.join([f'''{item}: {round(stats['items'][item] * 100, 3)}%''' for item in stats['items']])
     formatted_stats["users"] = '\n'.join([f'''{user}: {round(stats['users'][user] * 100, 3)}%''' for user in stats['users']])
-    formatted_stats["spreads"] = '\n'.join([f'''{spread}: {round(stats['spreads'][spread] * 100, 3)}%''' for spread in stats['spreads']])
 
+    # the average spread string
+    # EVs: 248/0/164/0/0/96 IVs: 31/31/31/31/31/31 Timid Nature Level: 100
+
+    formatted_stats["spreads"] = '\n'.join([f'''{spread}: {round(stats['spreads'][spread] * 100, 3)}%''' for spread in stats['spreads']])
 
     if cutoff > 0:
         abilities = formatted_stats["abilities"].split('\n')
@@ -60,7 +63,6 @@ def get_formatted_stats(path, pokemon, cutoff = -1):
         spreads = formatted_stats["spreads"].split('\n')
 
         users = sorted(users, key=lambda x: float(x.split(':')[1].split('%')[0]), reverse=True)
-        spreads = sorted(spreads, key=lambda x: float(x.split(':')[1].split('%')[0]), reverse=True)
 
         formatted_stats["abilities"] = '\n'.join(abilities[:cutoff])
         formatted_stats["partners"] = '\n'.join(partners[:cutoff])
