@@ -1,3 +1,4 @@
 .env/
 formats/
 token.json
+allowed_users.json

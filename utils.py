@@ -1,3 +1,6 @@
+import requests
+
+
 def return_chunks(text, max_characters, delimiter):
     chunks = []
 
@@ -22,3 +25,12 @@ def return_chunks(text, max_characters, delimiter):
 
 def format(text):
     return f"**{text.capitalize()}:**"
+
+def is_valid_url(url):
+    # check for header content-type starts with image
+    # if it doesnt start with that or the status code is not 200, return False
+    # else return True
+    request = requests.get(url)
+    if request.status_code == 200 and request.headers["content-type"].startswith("image"):
+        return True
+    return False

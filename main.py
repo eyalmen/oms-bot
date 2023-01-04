@@ -1,5 +1,6 @@
 import json
 import random
+import requests
 
 import nextcord
 from nextcord import Button, ButtonStyle, Embed, Interaction, SlashOption
@@ -7,6 +8,7 @@ from nextcord.ext import commands
 
 import formatted_stats
 import utils
+import add_avatar as addvatar
 
 with open("token.json") as f:
     TOKEN = json.load(f)
@@ -118,6 +120,26 @@ async def whoused(interaction: Interaction,
         embed.add_field(name="Error", value=f"Invalid pokemon for this format: {pokemon}", inline=False)
 
     await interaction.response.send_message(embed=embed)
+
+@client.slash_command(guild_ids=guild_ids, description="Add a new avatar to the pseudos client (need to have permission)")
+async def add_avatar(interaction: Interaction, avatar: str, url: str):
+    # check if the url is valid and the avatar is not in /200gb/pseudos-showdown/config/avatar_types.json as a key
+    avatar_types = json.load(open("/200gb/pseudos-showdown/config/avatar_types.json"))
+    if not utils.is_valid_url(url) or avatar in avatar_types:
+        await interaction.response.send_message("Avatar taken or url invalid")
+        return
+    
+    allowed_users = json.load(open("allowed_users.json"))
+
+    if str(interaction.user.id) in list(allowed_users.keys()):
+        await interaction.response.defer()
+        addvatar.add_avatar(avatar, url)
+        
+        avatar_embed = Embed(title="Avatar added", description=f"Avatar {avatar} added with url {url}")
+        avatar_embed.set_image(url=url)
+        await interaction.followup.send(embed=avatar_embed)
+    else:
+        await interaction.response.send_message("You do not have permission to add avatars")
 
 @client.slash_command(guild_ids=guild_ids, description="Focus blast")
 async def focus_blast(interaction: Interaction):
