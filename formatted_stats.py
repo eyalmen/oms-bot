@@ -63,6 +63,8 @@ def get_formatted_stats(path, pokemon, cutoff = -1):
         spreads = formatted_stats["spreads"].split('\n')
 
         users = sorted(users, key=lambda x: float(x.split(':')[1].split('%')[0]), reverse=True)
+        # sort spreads when they are formatted like this: `Sassy:252/0/4/0/252/0: 2.41%`
+        spreads = sorted(spreads, key=lambda x: float(x.split(':')[2].split('%')[0]), reverse=True)
 
         formatted_stats["abilities"] = '\n'.join(abilities[:cutoff])
         formatted_stats["partners"] = '\n'.join(partners[:cutoff])
