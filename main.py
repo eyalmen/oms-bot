@@ -1,14 +1,14 @@
 import json
 import random
-import requests
 
 import nextcord
+import requests
 from nextcord import Button, ButtonStyle, Embed, Interaction, SlashOption
 from nextcord.ext import commands
 
+import add_avatar as addvatar
 import formatted_stats
 import utils
-import add_avatar as addvatar
 
 with open("token.json") as f:
     TOKEN = json.load(f)
