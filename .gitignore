@@ -2,3 +2,7 @@
 formats/
 token.json
 allowed_users.json
+
+ps_ELO.py
+ps_GLICKO.py
+ps_GXE.py

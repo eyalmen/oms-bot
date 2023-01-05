@@ -34,3 +34,18 @@ def is_valid_url(url):
     if request.status_code == 200 and request.headers["content-type"].startswith("image"):
         return True
     return False
+
+def get_ansi_color_codes():
+    return  {
+    "green": "\u001B[32m", # ansicolor green
+    "red": "\u001B[31m", # ansicolor red
+    "blue": "\u001B[34m", # ansicolor blue
+    "white": "\u001B[37m", # ansicolor white
+    "purple": "\u001B[35m", # ansicolor purple
+    "yellow": "\u001B[33m", # ansicolor yellow
+    "light yellow": "\u001B[93m", # ansicolor light yellow
+    "cyan": "\u001B[36m", # ansicolor cyan
+    "black": "\u001B[30m", # ansicolor black
+    "light black": "\u001B[90m", # ansicolor light black
+    "reset": "\u001B[0m" # ansicolor reset
+}

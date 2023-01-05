@@ -9,6 +9,9 @@ from nextcord.ext import commands
 import add_avatar as addvatar
 import formatted_stats
 import utils
+from ps_ELO import calculateBattle
+from ps_GLICKO import Player, updateRating
+from ps_GXE import get_gxe
 
 with open("token.json") as f:
     TOKEN = json.load(f)
@@ -148,6 +151,49 @@ async def focus_blast(interaction: Interaction):
         await interaction.response.send_message("Focus miss")
     else:
         await interaction.response.send_message("Focus blast")
+
+@client.slash_command(guild_ids=guild_ids, description="Calculate GXE from rating and deviation")
+async def calc_gxe(interaction: Interaction, rating: int, deviation: int):
+    await interaction.response.send_message(f"Yout GXE would be {get_gxe(rating, deviation)}%")        
+
+@client.slash_command(guild_ids=guild_ids, description="Calculate elo from a battle")
+async def calc_elo(
+    interaction: Interaction,
+    p1_name: str,
+    p1_rating: int,
+    p2_name: str,
+    p2_rating: int,
+    winner: str = SlashOption(description="The winner of the battle", choices=["p1", "p2"]),
+    is_local: bool = SlashOption(description="Calculate as if the battle was on the pseudos client or not", default=True)):
+
+    p1 = {"name": p1_name, "rating": p1_rating}
+    p2 = {"name": p2_name, "rating": p2_rating}
+
+    score = 1 if winner == "p1" else 0
+
+    new_ratings = calculateBattle(p1, p2, score, local = is_local)
+    p1["rating"] = round(new_ratings[0])
+    p2["rating"] = round(new_ratings[1])
+
+    # using ansicolors to color the names of the players as purple for p1 and blue for p2 and to show the gain/loss in rating for each player
+    # send the message with the new ratings
+
+    ansi_colors = utils.get_ansi_color_codes()
+
+    purple = ansi_colors["purple"]
+    blue = ansi_colors["blue"]
+    reset = ansi_colors["reset"]
+    red = ansi_colors["red"]
+    green = ansi_colors["green"]
+
+    message = f"""```ansi
+{purple}{p1['name']}: {reset}{p1['rating']} {green}+{p1['rating'] - p1_rating}{reset}
+{blue}{p2['name']}: {reset}{p2['rating']} {red}-{p2_rating - p2['rating']}{reset}```
+"""
+
+    await interaction.response.send_message(message)
+
+    
 
 @client.slash_command(guild_ids=guild_ids, description="Get the pokemon leaderboard")
 async def get_pokemon_leaderboard(interaction: Interaction,
