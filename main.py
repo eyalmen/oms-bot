@@ -175,8 +175,48 @@ async def calc_elo(
     p1["elo"] = round(new_ratings[0])
     p2["elo"] = round(new_ratings[1])
 
-    # using ansicolors to color the names of the players as purple for p1 and blue for p2 and to show the gain/loss in rating for each player
-    # send the message with the new ratings
+    ansi_colors = utils.get_ansi_color_codes()
+
+    purple = ansi_colors["purple"]
+    blue = ansi_colors["blue"]
+    reset = ansi_colors["reset"]
+    red = ansi_colors["red"]
+    green = ansi_colors["green"]
+
+    p1diff = p1["elo"] - p1_rating
+    p2diff = p2_rating - p2["elo"]
+
+    p1diff = f"{green}+{str(p1diff).replace('-', '')}{reset}" if score == 1 else f"{red}{p1diff}{reset}"
+    p2diff = f"{green}+{str(p2diff).replace('-', '')}{reset}" if score == 0 else f"{red}{p2diff}{reset}"
+
+    message = f"""```ansi
+{purple}{p1['name']}: {reset}{p1['elo']} {p1diff}
+{blue}{p2['name']}: {reset}{p2['elo']} {p2diff}```"""
+
+    await interaction.response.send_message(message)
+
+@client.slash_command(guild_ids=guild_ids, description="Calculate Glicko-1 from a battle")
+async def calc_glicko(
+    interaction: Interaction,
+    p1_name: str,
+    p1_rating: int,
+    p1_deviation: int,
+    p2_name: str,
+    p2_rating: int,
+    p2_deviation: int,
+    winner: str = SlashOption(description="The winner of the battle", choices=["p1", "p2"])):
+
+    p1 = Player(p1_name)
+    p1.rating.glicko_rating = p1_rating
+    p1.rating.glicko_rating_deviation = p1_deviation
+
+    p2 = Player(p2_name)
+    p2.rating.glicko_rating = p2_rating
+    p2.rating.glicko_rating_deviation = p2_deviation
+
+    score = 1 if winner == "p1" else 0
+
+    updateRating(p1, p2, score)
 
     ansi_colors = utils.get_ansi_color_codes()
 
@@ -186,13 +226,34 @@ async def calc_elo(
     red = ansi_colors["red"]
     green = ansi_colors["green"]
 
+    p1diff = round(p1.rating.glicko_rating - p1_rating)
+    p2diff = round(p2.rating.glicko_rating - p2_rating)
+
+    p1diff = f"{green}+{str(p1diff).replace('-', '')}{reset} gained" if score == 1 else f"{red}{p1diff}{reset} lost"
+    p2diff = f"{green}+{str(p2diff).replace('-', '')}{reset} gained" if score == 0 else f"{red}{p2diff}{reset} lost"
+
     message = f"""```ansi
-{purple}{p1['name']}: {reset}{p1['elo']} {green}+{p1['elo'] - p1_rating}{reset}
-{blue}{p2['name']}: {reset}{p2['elo']} {red}-{p2_rating - p2['elo']}{reset}```
-"""
+{purple}{p1.username}: {reset}{round(p1.rating.glicko_rating)} ± {round(p1.rating.glicko_rating_deviation)} {p1diff} 
+{blue}{p2.username}: {reset}{round(p2.rating.glicko_rating)} ± {round(p2.rating.glicko_rating_deviation)} {p2diff}```"""
 
     await interaction.response.send_message(message)
 
+# a slash command that returns am embed with a pink side with heading "**Members**" and text <number of members in the server>
+@client.slash_command(guild_ids=guild_ids, description="Get the number of members in the server")
+async def get_members(interaction: Interaction):
+    embed = Embed(title="Members", description=f"{len(interaction.guild.members)}")
+    # embed.set_thumbnail(url=interaction.guild.icon_url)
+    embed.color = 0xff00ff
+    await interaction.response.send_message(embed=embed)
+
+# the same thing but for how many members with a specific role
+@client.slash_command(guild_ids=guild_ids, description="Get the number of members with a specific role")
+async def get_members_with_role(interaction: Interaction, role: str = SlashOption(description="The role to get the number of members with")):
+    role = nextcord.utils.get(interaction.guild.roles, name=role)
+    embed = Embed(title="Members", description=f"{len(role.members)}")
+    # embed.set_thumbnail(url=interaction.guild.icon_url)
+    embed.color = 0xff00ff
+    await interaction.response.send_message(embed=embed)
     
 
 @client.slash_command(guild_ids=guild_ids, description="Get the pokemon leaderboard")
