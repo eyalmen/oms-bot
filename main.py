@@ -2,7 +2,6 @@ import json
 import random
 
 import nextcord
-import requests
 from nextcord import Button, ButtonStyle, Embed, Interaction, SlashOption
 from nextcord.ext import commands
 
@@ -41,6 +40,7 @@ async def get_stats(interaction: Interaction,
     cutoff: int = SlashOption(description="The amount of entries in each stat to show (defaults to all)", default=-1)):
 
     embed = Embed(title=f"{pokemon}", description=f"Stats for {pokemon} in {format}")
+    utils.get_random_embed_side_colour(embed)
 
     try:
         stats = formatted_stats.get_formatted_stats(formats[format], pokemon, cutoff)
@@ -59,6 +59,7 @@ async def get_stat(interaction: Interaction,
     cutoff: int = SlashOption(description="The amount of entries in each stat to show (defaults to all)", default=-1)):
     
     embed = Embed(title=f"{pokemon}", description=f"{pokemon}'s {stat.capitalize()} in {format}")
+    utils.get_random_embed_side_colour(embed)
 
     try:
         stats = formatted_stats.get_formatted_stats(formats[format], pokemon, cutoff = cutoff)
@@ -76,6 +77,7 @@ async def get_item(interaction: Interaction,
     cutoff: int = SlashOption(description="The amount of entries in each stat to show (defaults to all)", default=-1)):
 
     embed = Embed(title=f"{item}", description=f"Stats for {item} in {format}")
+    utils.get_random_embed_side_colour(embed)
 
     try:
         stats = formatted_stats.get_formatted_item_stats(formats[format], item, cutoff)
@@ -92,6 +94,7 @@ async def get_item_leaderboard(interaction: Interaction,
     cutoff: int = SlashOption(description="The amount of entries in each stat to show (defaults to all)", default=-1)):
 
     embed = Embed(title=f"Item Leaderboard", description=f"Item leaderboard for {format}")
+    utils.get_random_embed_side_colour(embed)
 
     stats = formatted_stats.get_item_leaderboard(formats[format])
     leaderboard = ""
@@ -113,6 +116,7 @@ async def whoused(interaction: Interaction,
     cutoff: int = SlashOption(description="The amount of entries in each stat to show (defaults to all)", default=-1)):
 
     embed = Embed(title=f"{pokemon}", description=f"Users who used {pokemon} in {format}")
+    utils.get_random_embed_side_colour(embed)
 
     try:
         stats = formatted_stats.get_formatted_stats(formats[format], pokemon, cutoff)
@@ -139,6 +143,7 @@ async def add_avatar(interaction: Interaction, avatar: str, url: str):
         addvatar.add_avatar(avatar, url)
         
         avatar_embed = Embed(title="Avatar added", description=f"Avatar {avatar} added with url {url}")
+        utils.get_random_embed_side_colour(embed)
         avatar_embed.set_image(url=url)
         await interaction.followup.send(embed=avatar_embed)
     else:
@@ -243,7 +248,7 @@ async def calc_glicko(
 async def get_members(interaction: Interaction):
     embed = Embed(title="Members", description=f"{len(interaction.guild.members)}")
     # embed.set_thumbnail(url=interaction.guild.icon_url)
-    embed.color = 0xff00ff
+    utils.get_random_embed_side_colour(embed)
     await interaction.response.send_message(embed=embed)
 
 # the same thing but for how many members with a specific role
@@ -252,7 +257,7 @@ async def get_members_with_role(interaction: Interaction, role: str = SlashOptio
     role = nextcord.utils.get(interaction.guild.roles, name=role)
     embed = Embed(title="Members", description=f"{len(role.members)}")
     # embed.set_thumbnail(url=interaction.guild.icon_url)
-    embed.color = 0xff00ff
+    utils.get_random_embed_side_colour(embed)
     await interaction.response.send_message(embed=embed)
     
 
@@ -262,6 +267,7 @@ async def get_pokemon_leaderboard(interaction: Interaction,
     cutoff: int = SlashOption(description="The amount of entries in each stat to show (defaults to all)", default=-1)):
 
     embed = Embed(title=f"Pokemon Leaderboard", description=f"Pokemon usage leaderboard for {format}")
+    utils.get_random_embed_side_colour(embed)
 
     stats = formatted_stats.get_pokemon_leaderboard(formats[format])
     leaderboard = ""
