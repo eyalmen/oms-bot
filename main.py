@@ -2,7 +2,7 @@ import json
 import random
 
 import nextcord
-from nextcord import Button, ButtonStyle, Embed, Interaction, SlashOption
+from nextcord import Embed, Interaction, SlashOption
 from nextcord.ext import commands
 
 import add_avatar as addvatar
@@ -15,7 +15,7 @@ from ps_GXE import get_gxe
 with open("token.json") as f:
     TOKEN = json.load(f)
 TOKEN = TOKEN["token"]
-guild_ids = [977351156202356757, 1009941602317385781, 849345805604618270, 1056611873455341739, 1026725257505161236, 734897964400771193, 1009941602317385781]
+guild_ids = [977351156202356757, 1009941602317385781, 849345805604618270, 1056611873455341739, 1026725257505161236, 734897964400771193, 1009941602317385781, 1071886205492400219]
 
 intents = nextcord.Intents.all()
 intents.members = True
@@ -31,6 +31,10 @@ formats = {
     "DNU Suspect": "formats/gen9donotusesuspect.json",
     "UUD": "formats/gen9uud.json",
     "OUD": "formats/gen9oud.json",
+    "Rebalanced OU": "formats/gen9rebalancedou.json",
+    "Rebalanced Ubers": "formats/gen9rebalancedubers.json",
+    "Rebalanced UU": "formats/gen9rebalanceduu.json",
+    "Rebalanced RU": "formats/gen9rebalancedru.json",
 }
 
 @client.slash_command(guild_ids=guild_ids, description="Get all of a pokemon's usage stats")
@@ -143,7 +147,7 @@ async def add_avatar(interaction: Interaction, avatar: str, url: str):
         addvatar.add_avatar(avatar, url)
         
         avatar_embed = Embed(title="Avatar added", description=f"Avatar {avatar} added with url {url}")
-        utils.get_random_embed_side_colour(embed)
+        utils.get_random_embed_side_colour(avatar_embed)
         avatar_embed.set_image(url=url)
         await interaction.followup.send(embed=avatar_embed)
     else:
@@ -279,6 +283,20 @@ async def get_pokemon_leaderboard(interaction: Interaction,
         leaderboard = "\n".join(leaderboard)
 
     embed.add_field(name="Leaderboard", value=leaderboard, inline=False)
+
+    await interaction.response.send_message(embed=embed)
+
+@client.slash_command(guild_ids=guild_ids, description="Get FAQs for the pseudos client and DNU")
+async def get_faqs(interaction: Interaction, topic: str = SlashOption(description="The topic to get FAQs for", choices=["client", "dnu"])):
+    embed = Embed(title=f"{topic.capitalize()} FAQs", description=f"FAQs for {topic}")
+    utils.get_random_embed_side_colour(embed)
+
+    if topic == "client":
+        embed.add_field(name="Account", value="**Why can't I log in with my Pokémon Showdown account?**\nThe pseudos client uses a different loginserver than PS! meaning you will have to re-register your account. The upside of this is that almost any username is available to you. The registration process is the same as Pokémon Showdown\n\n**What usernames can I take?**\nYou may not impersonate staff, other users or notable people.", inline=False)
+        embed.add_field(name="Teams", value="**Where are my Pokémon Showdown teams?**\nWe don't have access to your Pokémon Showdown teams, so you'll have to import them from PS!\n\n**How do I import my Pokémon Showdown teams?**\nYou can import your teams by going to the teambuilder on PS!, scrolling down to the bottom of your teams and clicking a button called Backup/Restore all teams. From there you can copy that text and go to the pseudos client, where you will find that same button and paste what you've copied in there.\n\n**What should I do when clearing my cache?**\nYou should always back up your teams before clearing your cache, as it will delete your teams.", inline=False)
+    elif topic == "dnu":
+        # there should only be one field called "Read these resources" with body "Visit #ruleset and #resources and this link." The word 'this' should be clickable to take you to this url: https://old.reddit.com/r/stunfisk/comments/1099n19/do_not_use_the_best_of_the_very_worst/
+        embed.add_field(name="Read these resources", value="Visit #ruleset and #resources and [this](https://old.reddit.com/r/stunfisk/comments/1099n19/do_not_use_the_best_of_the_very_worst/) link.", inline=False)
 
     await interaction.response.send_message(embed=embed)
 

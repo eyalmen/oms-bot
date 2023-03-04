@@ -1,6 +1,7 @@
+import random
+
 import requests
 from nextcord import Embed
-import random
 
 
 def return_chunks(text, max_characters, delimiter):
@@ -52,6 +53,6 @@ def get_ansi_color_codes():
     "reset": "\u001B[0m" # ansicolor reset
 }
 
-def get_random_embed_side_colour(embed):
+def get_random_embed_side_colour(embed: Embed):
     sylveon_colour_scheme = ["76C2E3","8CD7F7","C1C1C1","F8F8F8","EA98B2","ED9DB6","FEB6CC","D6507A"] # blue to white to pink
     embed.colour = int(random.choice(sylveon_colour_scheme), 16)
